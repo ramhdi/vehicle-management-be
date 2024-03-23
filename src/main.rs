@@ -175,6 +175,10 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
+    let port = std::env::var("HTTP_PORT")
+        .expect("HTTP_PORT must be set")
+        .parse::<u16>()
+        .expect("HTTP_PORT must be a valid number");
     let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let pool = match PgPoolOptions::new()
         .max_connections(10)
@@ -212,7 +216,7 @@ async fn main() -> std::io::Result<()> {
             .service(get_vehicle_odometer_by_id)
             .service(post_odometer)
     })
-    .bind(("127.0.0.1", 3001))?
+    .bind(("127.0.0.1", port))?
     .run()
     .await
 }
